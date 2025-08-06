@@ -3,26 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Petty Cash Summary - Petty Cash Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-radius: 15px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .summary-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .card-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .balance-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+
+        .balance-card .card-title {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .balance-card .card-amount {
+            color: white;
+            font-size: 3.5rem;
+        }
+
+        .balance-positive {
+            color: #48bb78 !important;
+        }
+
+        .balance-negative {
+            color: #f56565 !important;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .stats-info h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .stats-info p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .balance-card {
+                grid-column: 1;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>💰 Petty Cash Summary</h2>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="logo">💰 Petty Cash</a>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'submit_expense' %}">Submit Expense</a></li>
+                <li><a href="{% url 'expense_list' %}">My Expenses</a></li>
+                <li><a href="{% url 'petty_cash_summary' %}">Summary</a></li>
+                <li><a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
 
-<table border="1" cellpadding="8">
-    <tr>
-        <th>Total Petty Cash</th>
-        <td>₹{{ total_cash }}</td>
-    </tr>
-    <tr>
-        <th>Total Expenses</th>
-        <td>₹{{ total_expenses }}</td>
-    </tr>
-    <tr>
-        <th>Remaining Balance</th>
-        <td><strong>₹{{ balance }}</strong></td>
-    </tr>
-</table>
+    <div class="summary-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">💰 Financial Summary</h1>
+            <p class="page-subtitle">Overview of your petty cash management</p>
+        </div>
 
-    
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="card-icon">💳</div>
+                <div class="card-title">Total Petty Cash</div>
+                <div class="card-amount">₹{{ total_cash|floatformat:2 }}</div>
+            </div>
+
+            <div class="summary-card">
+                <div class="card-icon">💸</div>
+                <div class="card-title">Total Expenses</div>
+                <div class="card-amount">₹{{ total_expenses|floatformat:2 }}</div>
+            </div>
+
+            <div class="summary-card balance-card">
+                <div class="card-icon">💰</div>
+                <div class="card-title">Remaining Balance</div>
+                <div class="card-amount {% if balance >= 0 %}balance-positive{% else %}balance-negative{% endif %}">
+                    ₹{{ balance|floatformat:2 }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <a href="{% url 'submit_expense' %}" class="btn btn-primary">Submit New Expense</a>
+            <a href="{% url 'expense_list' %}" class="btn btn-secondary">View All Expenses</a>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="stats-info">
+            <h3>Financial Health</h3>
+            {% if balance >= 0 %}
+                <p>✅ Your petty cash is in good standing with a positive balance of ₹{{ balance|floatformat:2 }}. 
+                   You have spent {{ total_expenses|floatformat:2 }} out of your total ₹{{ total_cash|floatformat:2 }} budget.</p>
+            {% else %}
+                <p>⚠️ Your expenses have exceeded the petty cash limit by ₹{{ balance|floatformat:2|slice:"1:" }}. 
+                   Please review your spending or replenish the petty cash fund.</p>
+            {% endif %}
+        </div>
+    </div>
 </body>
 </html>

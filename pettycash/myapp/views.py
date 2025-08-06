@@ -10,6 +10,10 @@ from .forms import RegisterModelForm
 from .models import *
 from django.db.models import Sum
 
+def home(request):
+    """Home page view"""
+    return render(request, 'home.html')
+
 def register_user(request):
     if request.method == 'POST':
         form = RegisterModelForm(request.POST)
@@ -71,6 +75,7 @@ def expense_list(request):
 def petty_cash_summary(request):
     # Get latest petty cash amount (if model exists)
     petty_cash = PettyCash.objects.last()
+    print(petty_cash)
     total_cash = petty_cash.total_cash if petty_cash else 10000  # fallback to 10k
 
     # Total expenses made

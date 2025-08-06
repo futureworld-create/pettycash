@@ -1,23 +1,398 @@
-<table border="1" cellpadding="8">
-    <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Category</th>
-        <th>Amount (₹)</th>
-        <th>Submitted By</th>  <!-- NEW -->
-        <th>Approved</th>
-    </tr>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Expenses - Petty Cash Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    {% for expense in expenses %}
-        <tr>
-            <td>{{ expense.date }}</td>
-            <td>{{ expense.description }}</td>
-            <td>{{ expense.get_category_display }}</td>
-            <td>{{ expense.amount }}</td>
-            <td>{{ expense.submitted_by.username }}</td>  <!-- NEW -->
-            <td>{{ expense.approved|yesno:"✅,❌" }}</td>
-        </tr>
-    {% empty %}
-        <tr><td colspan="6">No expenses submitted yet.</td></tr>
-    {% endfor %}
-</table>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            border-radius: 15px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .expenses-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .expenses-table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .expenses-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .table-header th {
+            padding: 1.5rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table-row {
+            border-bottom: 1px solid #e1e5e9;
+            transition: background-color 0.3s ease;
+        }
+
+        .table-row:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-cell {
+            padding: 1.2rem 1rem;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        .expense-date {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .expense-description {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .expense-category {
+            background: #f7fafc;
+            color: #4a5568;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .expense-amount {
+            font-weight: 700;
+            color: #e53e3e;
+            font-size: 1.1rem;
+        }
+
+        .expense-status {
+            font-size: 1.5rem;
+        }
+
+        .approved {
+            color: #38a169;
+        }
+
+        .pending {
+            color: #ed8936;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .empty-subtitle {
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .stats-bar h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-bar p {
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .expenses-table-container {
+                overflow-x: auto;
+            }
+
+            .table-header th {
+                padding: 1rem 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .table-cell {
+                padding: 1rem 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .expense-description {
+                max-width: 150px;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="logo">💰 Petty Cash</a>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'submit_expense' %}">Submit Expense</a></li>
+                <li><a href="{% url 'expense_list' %}">My Expenses</a></li>
+                <li><a href="{% url 'petty_cash_summary' %}">Summary</a></li>
+                <li><a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="expenses-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">📋 My Expenses</h1>
+            <p class="page-subtitle">Track and manage your submitted expenses</p>
+        </div>
+
+        {% if expenses %}
+            <!-- Stats Bar -->
+            <div class="stats-bar">
+                <h3>📊 Expense Overview</h3>
+                <p>You have {{ expenses|length }} expense{{ expenses|length|pluralize }} on record</p>
+            </div>
+
+            <!-- Expenses Table -->
+            <div class="expenses-table-container">
+                <table class="expenses-table">
+                    <thead class="table-header">
+                        <tr>
+                            <th>📅 Date</th>
+                            <th>📝 Description</th>
+                            <th>📂 Category</th>
+                            <th>💰 Amount</th>
+                            <th>👤 Submitted By</th>
+                            <th>✅ Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                            <tr class="table-row">
+                                <td class="table-cell expense-date">{{ expense.date|date:"M d, Y" }}</td>
+                                <td class="table-cell expense-description" title="{{ expense.description }}">{{ expense.description }}</td>
+                                <td class="table-cell">
+                                    <span class="expense-category">{{ expense.get_category_display }}</span>
+                                </td>
+                                <td class="table-cell expense-amount">₹{{ expense.amount|floatformat:2 }}</td>
+                                <td class="table-cell">{{ expense.submitted_by.username }}</td>
+                                <td class="table-cell expense-status">
+                                    {% if expense.approved %}
+                                        <span class="approved" title="Approved">✅</span>
+                                    {% else %}
+                                        <span class="pending" title="Pending">⏳</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="expenses-table-container">
+                <div class="empty-state">
+                    <div class="empty-icon">📝</div>
+                    <h3 class="empty-title">No Expenses Yet</h3>
+                    <p class="empty-subtitle">You haven't submitted any expenses yet. Start by submitting your first expense!</p>
+                    <a href="{% url 'submit_expense' %}" class="btn btn-primary">Submit First Expense</a>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="actions">
+            <a href="{% url 'submit_expense' %}" class="btn-primary">Submit New Expense</a>
+            <a href="{% url 'petty_cash_summary' %}" class="btn-outline">View Summary</a>
+        </div>
+    </div>
+</body>
+</html>

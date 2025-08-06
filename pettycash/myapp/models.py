@@ -20,13 +20,13 @@ class Expense(models.Model):
     def __str__(self):
         return f"{self.date} - ₹{self.amount} - {self.submitted_by.username}"
     
-class CashFloat(models.Model):
-    date = models.DateField(auto_now_add=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    added_by = models.ForeignKey(User, on_delete=models.CASCADE)
+# class CashFloat(models.Model):
+#     date = models.DateField(auto_now_add=True)
+#     amount = models.DecimalField(max_digits=10, decimal_places=2)
+#     added_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"{self.date} - {self.amount}"
+#     def __str__(self):
+#         return f"{self.date} - {self.amount}"
 
 
 class PettyCash(models.Model):
